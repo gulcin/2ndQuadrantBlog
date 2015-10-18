@@ -1,0 +1,61 @@
+---
+
+- hosts: dbservers
+  sudo: yes
+  sudo_user: postgres
+  gather_facts: yes
+
+  vars:
+    dbname: module_test
+    dbuser: postgres
+
+  tasks:
+  - name: ensure the PL/Python language is not available
+    postgresql_lang: >
+      lang=plpython2u
+      state=absent
+      db={{ dbname }}
+      login_user={{ dbuser }}
+
+  - name: ensure the postgresql-plpython-9.4 package is absent
+    apt: name=postgresql-plpython-9.4 state=absent
+    sudo_user: root
+
+  - name: ensure the user has no schema privileges
+    postgresql_privs: >
+      privs=ALL
+      type=schema
+      objs=public
+      role=ada
+      state=absent
+      db={{ dbname }}
+      login_user={{ dbuser }}
+
+  - name: ensure the user has no necessary privileges
+    postgresql_user: >
+      name=ada
+      role_attr_flags=NOLOGIN,NOCREATEDB
+      login_user={{ dbuser }}
+
+  - name: ensure the user has no access to database
+    postgresql_user: >
+      name=ada
+      password=lovelace
+      state=absent
+      priv=CONNECT
+      db={{ dbname }}
+      login_user={{ dbuser }}
+
+  - name: ensure the tsm_system_rows extension is absent
+    postgresql_ext: >
+      name=pg_stat_statements
+      state=absent
+      db={{ dbname }}
+      login_user={{ dbuser }}
+
+  - name: ensure the database is absent
+    postgresql_db: >
+      state=absent
+      db={{dbname}}
+      login_user={{dbuser}}
+
