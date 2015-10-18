@@ -48,7 +48,7 @@
 
   - name: ensure the tsm_system_rows extension is absent
     postgresql_ext: >
-      name=pg_stat_statements
+      name=tsm_system_rows
       state=absent
       db={{ dbname }}
       login_user={{ dbuser }}

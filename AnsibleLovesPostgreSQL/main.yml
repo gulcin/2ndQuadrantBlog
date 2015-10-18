@@ -18,7 +18,7 @@
 
   - name: ensure the tsm_system_rows extension is present
     postgresql_ext: >
-      name=pg_stat_statements
+      name=tsm_system_rows
       state=present
       db={{ dbname }}
       login_user={{ dbuser }}
