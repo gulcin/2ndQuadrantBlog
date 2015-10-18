@@ -1,0 +1,61 @@
+---
+
+- hosts: dbservers
+  sudo: yes
+  sudo_user: postgres
+  gather_facts: yes
+
+  vars:
+    dbname: module_test
+    dbuser: postgres
+
+  tasks:
+  - name: ensure the database is present
+    postgresql_db: >
+      state=present
+      db={{dbname}}
+      login_user={{dbuser}}
+
+  - name: ensure the tsm_system_rows extension is present
+    postgresql_ext: >
+      name=pg_stat_statements
+      state=present
+      db={{ dbname }}
+      login_user={{ dbuser }}
+
+  - name: ensure the user has access to database
+    postgresql_user: >
+      name=ada
+      password=lovelace
+      state=present
+      priv=CONNECT
+      db={{ dbname }}
+      login_user={{ dbuser }}
+
+  - name: ensure the user has necessary privileges
+    postgresql_user: >
+      name=ada
+      role_attr_flags=LOGIN,CREATEDB
+      login_user={{ dbuser }}
+
+  - name: ensure the user has schema privileges
+    postgresql_privs: >
+      privs=ALL
+      type=schema
+      objs=public
+      role=ada
+      db={{ dbname }}
+      login_user={{ dbuser }}
+
+  - name: ensure the postgresql-plpython-9.4 package is installed
+    apt: name=postgresql-plpython-9.4 state=latest
+    sudo_user: root
+
+  - name: ensure the PL/Python language is available
+    postgresql_lang: >
+      lang=plpython2u
+      state=present
+      db={{ dbname }}
+      login_user={{ dbuser }}
+
+
